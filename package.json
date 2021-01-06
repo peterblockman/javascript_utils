@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/boom": "^9.1.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "bycontract": "^2.0.9",
     "decimal.js": "^10.2.0",
