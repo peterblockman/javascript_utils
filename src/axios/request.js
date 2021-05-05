@@ -13,9 +13,7 @@ const {
   isJsonApi,
 } = require('../json_api/utils');
 
-const extractAxiosData = (axiosResResult) => axiosResResult.chain(
-  (axiosRes) => Result.Ok(axiosRes.data),
-);
+const extractAxiosData = (axiosRes) => axiosRes.data;
 const extractDataFromServerData = (axiosData) => axiosData;
 const encodeURIComponentJSON = (jsonData) => encodeURIComponent(JSON.stringify(jsonData));
 
@@ -113,40 +111,17 @@ const configureAxiosRequest = R.curry((config) => {
  * Note that in many cases we only need to pass data,
  * that is why we check doesConfigContainData
  */
-const handleAxiosRequest = R.curry(
+const createAxiosRequest = R.curry(
   async (method, url, config) => {
-    try {
-      const axiosRequestConfig = configureAxiosRequest(config);
-      const res = await axios(R.mergeLeft(
-        { method, url },
-        axiosRequestConfig,
-      ));
-      return Result.Ok(res);
-    } catch (error) {
-      return Result.Error(error);
-    }
+    const axiosRequestConfig = configureAxiosRequest(config);
+    const res = await axios(R.mergeLeft(
+      { method, url },
+      axiosRequestConfig,
+    ));
+    return res;
   },
 );
 
-/**
- * create axios request
- * @param  {string} method <get, post, put, patch,..> - all axios's method
- * @param  {string} url - api endpoint
- * @param  {Object|FolktaleResult} config contains data and other axios configs - similar
- * to axios object but doesnot contain url property
- * @return {Object} axios's response object
- * Note one can pass an object without any other configurations rather than the data
- * in this case, the object is the data
- * that is why we check doesConfigContainData
- */
-const createAxiosRequest = R.curry(
-  async (method, url, config) => {
-    if (!Result.hasInstance(config)) return handleAxiosRequest(method, url, config);
-    return config.chain(
-      async (configData) => handleAxiosRequest(method, url, configData),
-    );
-  },
-);
 // because many get request only need url, so we flip it
 const axiosGet = R.curry(
   async (url, config) => pipeAwait(
